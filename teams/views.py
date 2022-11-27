@@ -7,13 +7,13 @@ class TeamsView(APIView):
     def get(self, request: Request) -> Response:
 
         teams = Team.objects.all()
-        teams_list = []
+        # teams_list = []
 
-        for team in teams:
-            team_dict = model_to_dict(team)
-            teams_list.append(team)
+        # for team in teams:
+        #     team_dict = model_to_dict(team)
+        #     teams_list.append(team_dict)
 
-        # teams_list_2 = [model_to_dict(team) for team in teams]
+        teams_list = [model_to_dict(team) for team in teams]
 
         return Response(teams_list, status=status.HTTP_200_OK)
     
@@ -23,19 +23,19 @@ class TeamsView(APIView):
         return Response(new_team, status=status.HTTP_201_CREATED)
     
 class TeamsDetailView(APIView):
-    def get(self, request: Request, id: int) -> Response:
+    def get(self, request: Request, team_id: int) -> Response:
         try:
-            team = model_to_dict(Team.objects.get(id=id))
+            team = model_to_dict(Team.objects.get(id=team_id))
         except Team.DoesNotExist:
-            return Response({'msg': 'team not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'message': 'Team not found'}, status=status.HTTP_404_NOT_FOUND)
        
         return Response(team, status=status.HTTP_200_OK)
 
-    def patch(self, request: Request, id: int) -> Response :
+    def patch(self, request: Request, team_id: int) -> Response :
         try:
-            team = model_to_dict(Team.objects.get(id=id))
+            team =Team.objects.get(id=team_id)
         except Team.DoesNotExist:
-            return Response({'msg': 'team not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'message': 'Team not found'}, status=status.HTTP_404_NOT_FOUND)
 
         # team.name = request.data.get('name', team.name)
         # team.titles = request.data.get('titles', team.titles)
@@ -44,17 +44,18 @@ class TeamsDetailView(APIView):
         # team.founded_at = request.data.get('founded_at', team.founded_at)
 
         for key, value in request.data.items():
+
             setattr(team, key, value)
-        
+            
         team.save()
 
-        return Response(team, status=status.HTTP_200_OK)
+        return Response(model_to_dict(team), status=status.HTTP_200_OK)
 
-    def delete(self, request: Request, id: int) -> Response:
+    def delete(self, request: Request, team_id: int) -> Response:
         try:
-            team = model_to_dict(Team.objects.get(id=id))
+            team = Team.objects.get(id=team_id)
         except Team.DoesNotExist:
-            return Response({'msg': 'team not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'message': 'Team not found'}, status=status.HTTP_404_NOT_FOUND)
         
         team.delete()
 
